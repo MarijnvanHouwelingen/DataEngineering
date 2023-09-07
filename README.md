@@ -10,5 +10,8 @@ Make sure to name the branch after the work you are doing, e.g feature/mlops. Af
 on your task, use _git add . -> git commit -m "message"_ and _git push_ to push your changes to Github.
 After pushing to Github, use the pull request feature to merge into main.
 
+*Create a branch everytime you work start working on the project*
+*merge the branch with main when you stop working for the day*
+
 ## Merge conflicts
 If Github shows that there is a merge conflict, use _git merge_. The easiest way to do this is to do git merge main and resolve the conflict in VS Code. 
