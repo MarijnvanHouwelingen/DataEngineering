@@ -15,3 +15,6 @@ After pushing to Github, use the pull request feature to merge into main.
 
 ## Merge conflicts
 If Github shows that there is a merge conflict, use _git merge_. The easiest way to do this is to do git merge main and resolve the conflict in VS Code. 
+
+## Text editor
+Use nano as your tekst editor in the bash command prompt instead of vi. Nano is more intuitive than vi.
