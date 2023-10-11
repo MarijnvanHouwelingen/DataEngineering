@@ -5,6 +5,7 @@ For group members: Clone this repo on your local computer and ask for premission
 # Rules when working in my Repo :)
 
 ## Branching
+To go to an existing branch use \: git checkout - and find the assignment branch.
 Whenever you start working. Start a *Branch*. This is done by the command: _git checkout -b feature/branchname_.
 Make sure to name the branch after the work you are doing, e.g feature/mlops. After you have finished work
 on your task, use _git add . -> git commit -m "message"_ and _git push_ to push your changes to Github.
