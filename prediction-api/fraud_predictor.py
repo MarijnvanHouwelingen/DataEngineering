@@ -7,7 +7,7 @@ from keras.models import load_model
 import logging
 from io import StringIO
 
-
+# test comment
 class FraudPredictor:
     def __init__(self):
         self.model = None
