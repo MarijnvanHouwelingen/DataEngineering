@@ -33,7 +33,7 @@ def check_fraud():
         logging.debug("Prediction input : %s", prediction_input)
 
         # use requests library to execute the prediction service API by sending an HTTP POST request
-        # use an environment variable to find the value of the diabetes prediction API
+        # use an environment variable to find the value of the fraud prediction API
         # json.dumps() function will convert a subset of Python objects into a json string.
         # json.loads() method can be used to parse a valid JSON string and convert it into a Python Dictionary.
         predictor_api_url = os.environ['PREDICTOR_API']
@@ -47,7 +47,7 @@ def check_fraud():
     else:
         return jsonify(message="Method Not Allowed"), 405  # The 405 Method Not Allowed should be used to indicate
     # that our app that does not allow the users to perform any other HTTP method (e.g., PUT and  DELETE) for
-    # '/checkdiabetes' path
+    # '/checkfraud' path
 
 
 # The code within this conditional block will only run the python file is executed as a
