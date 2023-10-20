@@ -1,0 +1,7 @@
+{
+    "project_id": "assignment-1-399115",
+    "data_bucket": "data_de2023_2056332",
+    "dataset_feature_name": "Credit_card.csv",
+    "dataset_label_name": "Credit_card_label.csv", 
+    "model_repo": "models_de2023_2056332"
+  }
