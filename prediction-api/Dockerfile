@@ -10,7 +10,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 # Expose the port that our app runs in
 EXPOSE 5000
-# Environment Variables
-ENV MODEL_REPO="models_de2023_2056332"
+# Enviroment Variables
+ENV PROJECT_ID=assignment-1-399115
+ENV MODEL_REPO=models_de2023_2056332
+ENV MODEL_NAME=model_assignment1.pkl
 # Run our App
 CMD ["python3","app.py"]

@@ -17,9 +17,9 @@ def check_fraud():
     elif request.method == "POST":
         prediction_input = [
             {
-                "gender": request.form.get("dropdownGender"),  # getting input with name = dropdownGender in HTML form
-                "car": request.form.get("dropdownCar"),  # getting input with name = dropdownCar in HTML form
-                "property": request.form.get("dropdownProperty"), # getting input with name = dropdownProperty in HTML form
+                "gender": int(request.form.get("dropdownGender")),  # getting input with name = dropdownGender in HTML form
+                "car": int(request.form.get("dropdownCar")),  # getting input with name = dropdownCar in HTML form
+                "property": int(request.form.get("dropdownProperty")), # getting input with name = dropdownProperty in HTML form
                 "children": int(request.form.get("nrchildren")), # getting input with name = nrchildren in HTML form
                 "annualIncome": int(request.form.get("annualincome")), # getting input with name = annualincome in HTML form
             }
@@ -34,7 +34,8 @@ def check_fraud():
         predictor_api_url = os.environ['PREDICTOR_API']
         res = requests.post(predictor_api_url, json=json.loads(json.dumps(prediction_input)))
 
-        prediction_value = res.json()['result']
+        data = res.json()
+        prediction_value = data.get('result')
         logging.info("Prediction Output : %s", prediction_value)
         return render_template("response_page.html", prediction_variable= prediction_value)
 
