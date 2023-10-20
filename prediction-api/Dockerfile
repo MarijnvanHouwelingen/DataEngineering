@@ -11,6 +11,6 @@ COPY . .
 # Expose the port that our app runs in
 EXPOSE 5000
 # Environment Variables
-ENV MODEL_REPO=/usr/src/myapp
+ENV MODEL_REPO="models_de2023_2056332"
 # Run our App
 CMD ["python3","app.py"]
