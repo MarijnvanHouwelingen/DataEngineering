@@ -11,29 +11,28 @@ class FraudPredictor:
     def __init__(self):
         self.model = None
 
-    # download the model
-    def download_model(self):
-        project_id = os.environ.get('PROJECT_ID')
-        model_repo = os.environ.get('MODEL_REPO')
-        model_name = os.environ.get('MODEL_NAME')
-        client = storage.Client(project=project_id)
-        bucket = client.bucket(model_repo)
-        blob = bucket.blob(model_name)
-        blob.download_to_filename('local_model.pkl')
-        with open('local_model.pkl', 'rb') as model_file:
-            self.model = pickle.load(model_file) 
-        return jsonify({'message': " the model was downloaded"}), 200
-
     def predict_single_record(self, prediction_input):
-        print(prediction_input)
+        logging.debug(prediction_input)
         if self.model is None:
-            self.download_model()
-        print(json.dumps(prediction_input))
-        df = pd.read_json(json.dumps(prediction_input), orient='records')
-        print(df)
+            try:
+                project_id = os.environ.get('assignment-1-399115')
+                model_repo = os.environ.get('models_de2023_2056332')
+                model_name = os.environ.get('model_assignment1.pkl')
+                client = storage.Client(project=project_id)
+                bucket = client.bucket(model_repo)
+                blob = bucket.blob(model_name)
+                blob.download_to_filename('local_model.pkl')
+                with open('local_model.pkl', 'rb') as model_file:
+                    self.model = pickle.load(model_file) 
+            except KeyError:
+                print("MODEL_REPO is undefined")
+                with open('model_assignment1.pkl', 'rb') as model_file:
+                    self.model = pickle.load(model_file) 
+
+        df = pd.read_json(StringIO(json.dumps(prediction_input)), orient='records')
         y_pred = self.model.predict(df)
-        print(y_pred[0])
+        logging.info(y_pred[0])
         status = (y_pred[0] > 0.5)
-        print(type(status[0]))
+        logging.info(type(status[0]))
         # return the prediction outcome as a json message. 200 is HTTP status code 200, indicating successful completion
         return jsonify({'result': str(status[0])}), 200
