@@ -31,14 +31,13 @@ def check_fraud():
         # use an environment variable to find the value of the fraud prediction API
         # json.dumps() function will convert a subset of Python objects into a json string.
         # json.loads() method can be used to parse a valid JSON string and convert it into a Python Dictionary.
-        predictor_api_url = os.environ['PREDICTOR_API']
+         predictor_api_url = os.environ['PREDICTOR_API']
         res = requests.post(predictor_api_url, json=json.loads(json.dumps(prediction_input)))
 
-        data = res.json()
-        prediction_value = data.get('result')
+        prediction_value = res.json()['result']
         logging.info("Prediction Output : %s", prediction_value)
-        return render_template("response_page.html", prediction_variable= prediction_value)
-
+        return render_template("response_page.html",
+                               prediction_variable=prediction_value)
     else:
         return jsonify(message="Method Not Allowed"), 405  # The 405 Method Not Allowed should be used to indicate
     # that our app that does not allow the users to perform any other HTTP method (e.g., PUT and  DELETE) for
