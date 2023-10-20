@@ -1,0 +1,396 @@
+# PIPELINE DEFINITION
+# Name: fraud-predictor-data-cleaning-pipeline
+# Inputs:
+#    data_bucket: str
+#    dataset_feature_name: str
+#    dataset_label_name: str
+#    model_repo: str
+#    project_id: str
+components:
+  comp-clean-data:
+    executorLabel: exec-clean-data
+    inputDefinitions:
+      artifacts:
+        merged_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+    outputDefinitions:
+      artifacts:
+        cleaned_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+  comp-download-data:
+    executorLabel: exec-download-data
+    inputDefinitions:
+      parameters:
+        bucket:
+          parameterType: STRING
+        feature_dataset_name:
+          parameterType: STRING
+        label_dataset_name:
+          parameterType: STRING
+        project_id:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        feature_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        label_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+  comp-merge-data:
+    executorLabel: exec-merge-data
+    inputDefinitions:
+      artifacts:
+        feature_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        label_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+    outputDefinitions:
+      artifacts:
+        merged_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+  comp-train-test-split:
+    executorLabel: exec-train-test-split
+    inputDefinitions:
+      artifacts:
+        cleaned_dataset:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+    outputDefinitions:
+      artifacts:
+        dataset_test:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        dataset_train:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+  comp-upload-dataset-to-gcs:
+    executorLabel: exec-upload-dataset-to-gcs
+    inputDefinitions:
+      artifacts:
+        dataset_test:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        resampled_train_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        project_id:
+          parameterType: STRING
+deploymentSpec:
+  executors:
+    exec-clean-data:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - clean_data
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.3.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'numpy'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef clean_data(merged_dataset: Input[Dataset], cleaned_dataset: Output[Dataset]):\n\
+          \    '''Deletes irrelevant columns and removes NA's'''\n    import pandas\
+          \ as pd\n    import logging\n    import sys\n    import numpy\n\n    # Sets\
+          \ the logging config\n    logging.basicConfig(stream=sys.stdout, level=logging.INFO)\
+          \ \n\n    #Loads the merged dataset in\n    df = pd.read_csv(merged_dataset.path\
+          \ + \".csv\", index_col=None)\n\n    # Drops the columns: Birthday_count,\
+          \ Employed_days, Mobile_phone, Work_Phone, Phone, EMAIL_ID, Type_Occupation\
+          \ and Family_Members.\n    cleandf = df.drop(columns= [\"Birthday_count\"\
+          , \"Employed_days\", \"Mobile_phone\", \"Work_Phone\", \"Phone\", \"EMAIL_ID\"\
+          , \"Type_Occupation\", \"Family_Members\"])\n\n    # Save the cleaned dataset\n\
+          \    cleandf.to_csv(cleaned_dataset.path + \".csv\", index=False, encoding='utf-8-sig')\n\
+          \n"
+        image: python:3.10.7-slim
+    exec-download-data:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - download_data
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.3.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'google-cloud-storage'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef download_data(project_id: str, bucket: str, feature_dataset_name:\
+          \ str, label_dataset_name: str, \n                  feature_dataset: Output[Dataset],\
+          \ label_dataset: Output[Dataset]):\n    '''Download data'''\n    from google.cloud\
+          \ import storage\n    import pandas as pd\n    import logging \n    import\
+          \ sys\n\n    logging.basicConfig(stream=sys.stdout, level=logging.INFO)\n\
+          \n    # Get the client and bucket\n    client = storage.Client(project=project_id)\n\
+          \    bucket = client.bucket(bucket)\n\n     # Download the feature dataset\n\
+          \    blob1 = bucket.blob(feature_dataset_name)\n    blob1.download_to_filename(feature_dataset.path\
+          \ + \".csv\")\n\n    # Download the label dataset\n    blob2 = bucket.blob(label_dataset_name)\n\
+          \    blob2.download_to_filename(label_dataset.path + \".csv\")\n\n    logging.info('Download\
+          \ & Merge all Data complete!')\n\n"
+        image: python:3.10.7-slim
+    exec-merge-data:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - merge_data
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.3.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' &&\
+          \ \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef merge_data(feature_dataset: Input[Dataset], label_dataset: Input[Dataset],\
+          \ merged_dataset: Output[Dataset]):\n    import pandas as pd\n    import\
+          \ logging \n    import sys\n    # Download the datasets\n    df_feature\
+          \ = pd.read_csv(feature_dataset.path + \".csv\",index_col=None)\n    df_label\
+          \ = pd.read_csv(label_dataset.path + \".csv\",index_col=None)\n    # merge\
+          \ them together\n    merged_df = pd.merge(df_feature, df_label, on='Ind_ID')\n\
+          \    merged_df.to_csv(merged_dataset.path + \".csv\", index=False, encoding='utf-8-sig')\n\
+          \n"
+        image: python:3.10.7-slim
+    exec-train-test-split:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_test_split
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.3.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'scikit-learn'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_test_split(cleaned_dataset: Input[Dataset], dataset_train:\
+          \ Output[Dataset], dataset_test: Output[Dataset]):\n    '''train_test_split'''\n\
+          \    import pandas as pd\n    import logging \n    import sys\n    from\
+          \ sklearn.model_selection import train_test_split as tts\n\n    logging.basicConfig(stream=sys.stdout,\
+          \ level=logging.INFO) \n\n    # get the cleaned data from previous component\n\
+          \    alldata = pd.read_csv(cleaned_dataset.path + \".csv\", index_col=None)\
+          \ \n\n    #create a train and test dataset\n    train, test = tts(alldata,\
+          \ test_size=0.3)\n\n    #create a train.csv file and a test.csv file\n \
+          \   train.to_csv(dataset_train.path + \".csv\" , index=False, encoding='utf-8-sig')\n\
+          \    test.to_csv(dataset_test.path + \".csv\" , index=False, encoding='utf-8-sig')\n\
+          \n"
+        image: python:3.10.7-slim
+    exec-upload-dataset-to-gcs:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - upload_dataset_to_gcs
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.3.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'google-cloud-storage'\
+          \ && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef upload_dataset_to_gcs(project_id: str, resampled_train_data:\
+          \ Input[Dataset], dataset_test: Input[Dataset]):\n    '''upload dataset\
+          \ to gsc'''\n    from google.cloud import storage   \n    import logging\
+          \ \n    import sys\n\n    logging.basicConfig(stream=sys.stdout, level=logging.INFO)\
+          \    \n\n    # upload the model to GCS\n    client = storage.Client(project=project_id)\n\
+          \    bucket = client.bucket(bucket)\n    blob1 = bucket.blob(dataset_test)\n\
+          \    blob2 = bucket.blob(resampled_train_data)\n\n    blob1.upload_from_filename(dataset_test.path\
+          \ + \".csv\")   \n    blob2.upload_from_filename(resampled_train_data.path\
+          \ + \".csv\")\n    logging.info(\"Upload to Google Cloud complete.\")\n\n"
+        image: python:3.10.7-slim
+pipelineInfo:
+  name: fraud-predictor-data-cleaning-pipeline
+root:
+  dag:
+    tasks:
+      clean-data:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-clean-data
+        dependentTasks:
+        - merge-data
+        inputs:
+          artifacts:
+            merged_dataset:
+              taskOutputArtifact:
+                outputArtifactKey: merged_dataset
+                producerTask: merge-data
+        taskInfo:
+          name: clean-data
+      download-data:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-download-data
+        inputs:
+          parameters:
+            bucket:
+              componentInputParameter: data_bucket
+            feature_dataset_name:
+              componentInputParameter: dataset_feature_name
+            label_dataset_name:
+              componentInputParameter: dataset_label_name
+            project_id:
+              componentInputParameter: project_id
+        taskInfo:
+          name: download-data
+      merge-data:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-merge-data
+        dependentTasks:
+        - download-data
+        inputs:
+          artifacts:
+            feature_dataset:
+              taskOutputArtifact:
+                outputArtifactKey: feature_dataset
+                producerTask: download-data
+            label_dataset:
+              taskOutputArtifact:
+                outputArtifactKey: label_dataset
+                producerTask: download-data
+        taskInfo:
+          name: merge-data
+      train-test-split:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-train-test-split
+        dependentTasks:
+        - clean-data
+        inputs:
+          artifacts:
+            cleaned_dataset:
+              taskOutputArtifact:
+                outputArtifactKey: cleaned_dataset
+                producerTask: clean-data
+        taskInfo:
+          name: train-test-split
+      upload-dataset-to-gcs:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-upload-dataset-to-gcs
+        dependentTasks:
+        - train-test-split
+        inputs:
+          artifacts:
+            dataset_test:
+              taskOutputArtifact:
+                outputArtifactKey: dataset_test
+                producerTask: train-test-split
+            resampled_train_data:
+              taskOutputArtifact:
+                outputArtifactKey: dataset_train
+                producerTask: train-test-split
+          parameters:
+            project_id:
+              componentInputParameter: project_id
+        taskInfo:
+          name: upload-dataset-to-gcs
+  inputDefinitions:
+    parameters:
+      data_bucket:
+        parameterType: STRING
+      dataset_feature_name:
+        parameterType: STRING
+      dataset_label_name:
+        parameterType: STRING
+      model_repo:
+        parameterType: STRING
+      project_id:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.3.0

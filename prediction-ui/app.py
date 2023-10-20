@@ -43,7 +43,6 @@ def check_fraud():
     # that our app that does not allow the users to perform any other HTTP method (e.g., PUT and  DELETE) for
     # '/checkfraud' path
 
-
 # The code within this conditional block will only run the python file is executed as a
 # script. See https://realpython.com/if-name-main-python/
 if __name__ == '__main__':
