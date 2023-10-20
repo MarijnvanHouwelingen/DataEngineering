@@ -34,7 +34,8 @@ def check_fraud():
         predictor_api_url = os.environ['PREDICTOR_API']
         res = requests.post(predictor_api_url, json=json.loads(json.dumps(prediction_input)))
 
-        prediction_value = res.json()['result']
+        data = res.json()
+        prediction_value = data.get('result')
         logging.info("Prediction Output : %s", prediction_value)
         return render_template("response_page.html", prediction_variable= prediction_value)
 
