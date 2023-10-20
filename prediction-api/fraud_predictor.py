@@ -3,6 +3,7 @@ import os
 
 import pandas as pd
 from flask import jsonify
+from google.cloud import storage
 import pickle
 import logging
 from io import StringIO
