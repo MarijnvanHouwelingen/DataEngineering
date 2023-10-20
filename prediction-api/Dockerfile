@@ -14,7 +14,3 @@ EXPOSE 5000
 ENV MODEL_REPO=/usr/src/myapp
 # Run our App
 CMD ["python3","app.py"]
-# We can also use an ENTRYPOINT and a CMD
-# Run our App
-#ENTRYPOINT ["python3"]
-#CMD ["app.py"]
