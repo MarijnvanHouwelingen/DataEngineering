@@ -7,7 +7,6 @@ from flask import Flask, request, render_template, jsonify
 # Flask constructor
 app = Flask(__name__)
 
-
 # A decorator used to tell the application
 # which URL is associated function
 @app.route('/checkfraud', methods=["GET", "POST"])
@@ -23,10 +22,6 @@ def check_fraud():
                 "property": request.form.get("dropdownProperty"), # getting input with name = dropdownProperty in HTML form
                 "children": int(request.form.get("nrchildren")), # getting input with name = nrchildren in HTML form
                 "annualIncome": int(request.form.get("annualincome")), # getting input with name = annualincome in HTML form
-                "typeIncome": request.form.get("dropdownTypeIncome"), # getting input with name = dropdownTypeIncome in HTML form
-                "eduction": request.form.get("dropdownEducation"), # getting input with name = dropdownEducation in HTML form
-                "maritalStatus": request.form.get("dropdownMarital"), # getting input with name = dropdownMarital in HTML form
-                "typeHouse": request.form.get("dropdownHouse") # getting input with name = dropdownCar in HTML form
             }
         ]
 
@@ -41,8 +36,7 @@ def check_fraud():
 
         prediction_value = res.json()['result']
         logging.info("Prediction Output : %s", prediction_value)
-        return render_template("response_page.html",
-                               prediction_variable= prediction_value)
+        return render_template("response_page.html", prediction_variable= prediction_value)
 
     else:
         return jsonify(message="Method Not Allowed"), 405  # The 405 Method Not Allowed should be used to indicate
