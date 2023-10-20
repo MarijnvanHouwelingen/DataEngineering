@@ -11,7 +11,7 @@ COPY . .
 # Expose the port that our app runs in
 EXPOSE 5000
 # Environment Variables
-ENV PREDICTOR_API=http://predictor-api-server:5000/fraud_predictor/
+ENV PREDICTOR_API=https://prediction-api-ucjlqgwmfa-uc.a.run.app/fraud_predictor/
 #Add some meta data if necessary
 LABEL fraud.predictor.api="0.0.1-beta"
 # Run our App
