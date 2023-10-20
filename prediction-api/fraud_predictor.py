@@ -22,7 +22,7 @@ class FraudPredictor:
                     self.model = pickle.load(model_file)            
             except KeyError:
                 print("MODEL_REPO is undefined")
-                with open(file_path, 'rb') as model_file:
+                with open('model_assignment1.pkl', 'rb') as model_file:
                     self.model = pickle.load(model_file) 
 
         df = pd.read_json(StringIO(json.dumps(prediction_input)), orient='records')
