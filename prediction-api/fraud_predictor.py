@@ -7,6 +7,9 @@ from google.cloud import storage
 import pickle
 import logging
 from io import StringIO
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class FraudPredictor:
     def __init__(self):
@@ -23,7 +26,7 @@ class FraudPredictor:
                 bucket = client.bucket(model_repo)
                 blob = bucket.blob(model_name)
                 blob.download_to_filename('local_model.pkl')
-                logging.log(model_repo,prediction_input)
+                logger.info(model_repo,prediction_input))
                 with open('local_model.pkl', 'rb') as model_file:
                     self.model = pickle.load(model_file) 
             except KeyError:
