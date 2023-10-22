@@ -5,10 +5,10 @@ import pandas as pd
 from flask import jsonify
 from google.cloud import storage
 import pickle
-import logging
+# import logging
 from io import StringIO
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+# logger = logging.getLogger(__name__)
+# logger.setLevel(logging.INFO)
 
 
 class FraudPredictor:
@@ -16,7 +16,7 @@ class FraudPredictor:
         self.model = None
 
     def predict_single_record(self, prediction_input):
-        logging.debug(prediction_input)
+        # logging.debug(prediction_input)
         if self.model is None:
             try:
                 project_id = os.environ['PROJECT_ID']
