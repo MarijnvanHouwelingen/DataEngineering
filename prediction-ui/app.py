@@ -18,11 +18,11 @@ def check_fraud():
     elif request.method == "POST":
         prediction_input = [
             {
-                "gender": int(request.form.get("dropdownGender")),  # getting input with name = dropdownGender in HTML form
-                "car": int(request.form.get("dropdownCar")),  # getting input with name = dropdownCar in HTML form
-                "property": int(request.form.get("dropdownProperty")), # getting input with name = dropdownProperty in HTML form
-                "children": int(request.form.get("nrchildren")), # getting input with name = nrchildren in HTML form
-                "annualIncome": int(request.form.get("annualincome")), # getting input with name = annualincome in HTML form
+                "GENDER": int(request.form.get("dropdownGender")),  # getting input with name = dropdownGender in HTML form
+                "Car_Owner": int(request.form.get("dropdownCar")),  # getting input with name = dropdownCar in HTML form
+                "Propert_Owner": int(request.form.get("dropdownProperty")), # getting input with name = dropdownProperty in HTML form
+                "CHILDREN": int(request.form.get("nrchildren")), # getting input with name = nrchildren in HTML form
+                "Annual_income": int(request.form.get("annualincome")), # getting input with name = annualincome in HTML form
             }
         ]
 
