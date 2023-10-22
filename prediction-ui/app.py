@@ -11,6 +11,7 @@ app = Flask(__name__)
 # which URL is associated function
 @app.route('/checkfraud', methods=["GET", "POST"])
 def check_fraud():
+    print("Response status code:", request.method)
     if request.method == "GET":
         return render_template("input_form_page.html")
 
