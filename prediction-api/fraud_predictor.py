@@ -34,6 +34,6 @@ class FraudPredictor:
         y_pred = self.model.predict(df)
         logging.info(y_pred[0])
         status = (y_pred[0] > 0.5)
-        logging.info(type(status[0]))
+        logging.info(type(status))
         # return the prediction outcome as a json message. 200 is HTTP status code 200, indicating successful completion
         return jsonify({'result': str(status)}), 200
