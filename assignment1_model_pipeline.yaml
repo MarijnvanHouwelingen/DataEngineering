@@ -333,9 +333,9 @@ deploymentSpec:
           \ \n\n    #Loads the merged dataset in\n    df = pd.read_csv(merged_dataset.path\
           \ + \".csv\", index_col=None)\n\n    # Drops the columns: Birthday_count,\
           \ Employed_days, Mobile_phone, Work_Phone, Phone, EMAIL_ID, Type_Occupation\
-          \ and Family_Members.\n    cleandf = df.drop(columns= [\"Type_Income\",\"\
-          EDUCATION\",\"Marital_status\",\"Housing_type\", \"Birthday_count\", \"\
-          Employed_days\", \"Mobile_phone\", \"Work_Phone\", \"Phone\", \"EMAIL_ID\"\
+          \ and Family_Members.\n    cleandf = df.drop(columns= [\"Ind_ID\",\"Type_Income\"\
+          ,\"EDUCATION\",\"Marital_status\",\"Housing_type\", \"Birthday_count\",\
+          \ \"Employed_days\", \"Mobile_phone\", \"Work_Phone\", \"Phone\", \"EMAIL_ID\"\
           , \"Type_Occupation\", \"Family_Members\"])\n    # make everything in 0\
           \ and 1\n    cleandf[\"GENDER\"].replace({\"M\":1,\"F\":0}, inplace = True)\n\
           \    cleandf[\"Car_Owner\"].replace({\"Y\":1,\"N\":0}, inplace = True)\n\
