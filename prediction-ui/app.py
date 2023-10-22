@@ -33,6 +33,7 @@ def check_fraud():
         # json.loads() method can be used to parse a valid JSON string and convert it into a Python Dictionary.
         predictor_api_url = os.environ['PREDICTOR_API']
         res = requests.post(predictor_api_url, json=json.loads(json.dumps(prediction_input)))
+        print("Response status code:", res.status_code)
 
         prediction_value = res.json()['result']
         logging.info("Prediction Output : %s", prediction_value)
