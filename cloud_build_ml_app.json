@@ -51,10 +51,7 @@
           "2",
           "--memory",
           "4G",
-          "--allow-unauthenticated", 
-          "--update-env-vars",
-          "PROJECT_ID=$PROJECT_ID,MODEL_REPO=models_de2023_2056332,MODEL_NAME=model_assignment1.pkl",
-          "--no-cpu-throttling"
+          "--allow-unauthenticated"
         ]
       },
       {
