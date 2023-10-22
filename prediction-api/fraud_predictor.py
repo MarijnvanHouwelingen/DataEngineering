@@ -18,7 +18,7 @@ class FraudPredictor:
             try:
                 model_repo = os.environ['MODEL_REPO']
                 file_path = os.path.join(model_repo, "model_assignment1.pkl")
-                print(file_path)
+                logging.log(file_path,model_repo,prediction_input)
                 with open(file_path, 'rb') as model_file:
                     self.model = pickle.load(model_file) 
             except KeyError:
