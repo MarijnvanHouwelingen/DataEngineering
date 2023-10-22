@@ -26,7 +26,7 @@ class FraudPredictor:
                 bucket = client.bucket(model_repo)
                 blob = bucket.blob(model_name)
                 blob.download_to_filename('local_model.pkl')
-                logger.info(model_repo,prediction_input))
+                # logger.info(model_repo,prediction_input))
                 with open('local_model.pkl', 'rb') as model_file:
                     self.model = pickle.load(model_file) 
             except KeyError:
@@ -36,8 +36,8 @@ class FraudPredictor:
 
         df = pd.read_json(StringIO(json.dumps(prediction_input)), orient='records')
         y_pred = self.model.predict(df)
-        logging.info(y_pred[0])
+        # logging.info(y_pred[0])
         status = (y_pred[0] > 0.5)
-        logging.info(type(status[0]))
+        # logging.info(type(status[0]))
         # return the prediction outcome as a json message. 200 is HTTP status code 200, indicating successful completion
         return jsonify({'result': str(status[0])}), 200
