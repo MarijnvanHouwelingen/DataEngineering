@@ -79,6 +79,20 @@ components:
           artifactType:
             schemaTitle: system.Dataset
             schemaVersion: 0.0.1
+  comp-undersample-train:
+    executorLabel: exec-undersample-train
+    inputDefinitions:
+      artifacts:
+        dataset_train:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+    outputDefinitions:
+      artifacts:
+        resampled_dataset_train:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
   comp-upload-dataset-to-gcs:
     executorLabel: exec-upload-dataset-to-gcs
     inputDefinitions:
@@ -130,7 +144,7 @@ deploymentSpec:
           \ \n\n    #Loads the merged dataset in\n    df = pd.read_csv(merged_dataset.path\
           \ + \".csv\", index_col=None)\n\n    # Drops the columns: Birthday_count,\
           \ Employed_days, Mobile_phone, Work_Phone, Phone, EMAIL_ID, Type_Occupation\
-          \ and Family_Members.\n    cleandf = df.drop(columns= [\"Birthday_count\"\
+          \ and Family_Members.\n    cleandf = df.drop(columns= ['Ind_ID',\"Birthday_count\"\
           , \"Employed_days\", \"Mobile_phone\", \"Work_Phone\", \"Phone\", \"EMAIL_ID\"\
           , \"Type_Occupation\", \"Family_Members\"])\n\n    # Save the cleaned dataset\n\
           \    cleandf.to_csv(cleaned_dataset.path + \".csv\", index=False, encoding='utf-8-sig')\n\
@@ -244,11 +258,53 @@ deploymentSpec:
           \ sklearn.model_selection import train_test_split as tts\n\n    logging.basicConfig(stream=sys.stdout,\
           \ level=logging.INFO) \n\n    # get the cleaned data from previous component\n\
           \    alldata = pd.read_csv(cleaned_dataset.path + \".csv\", index_col=None)\
-          \ \n\n    #create a train and test dataset\n    train, test = tts(alldata,\
-          \ test_size=0.3)\n\n    #create a train.csv file and a test.csv file\n \
-          \   train.to_csv(dataset_train.path + \".csv\" , index=False, encoding='utf-8-sig')\n\
-          \    test.to_csv(dataset_test.path + \".csv\" , index=False, encoding='utf-8-sig')\n\
-          \n"
+          \ \n    X = alldata.drop([\"label\"], axis=1)\n    y = alldata['label']\n\
+          \    #create a train and test dataset\n    X_train, X_test, y_train, y_test\
+          \ = tts(X,y, test_size=0.3, stratify=y)\n\n    train = pd.concat([X_train,\
+          \ y_train], axis=\"columns\")\n    test = pd.concat([X_test, y_test], axis=\"\
+          columns\")\n    #create a train.csv file and a test.csv file\n    train.to_csv(dataset_train.path\
+          \ + \".csv\" , index=False, encoding='utf-8-sig')\n    test.to_csv(dataset_test.path\
+          \ + \".csv\" , index=False, encoding='utf-8-sig')\n\n"
+        image: python:3.10.7-slim
+    exec-undersample-train:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - undersample_train
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.3.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"'  &&\
+          \  python3 -m pip install --quiet --no-warn-script-location 'pandas' 'scikit-learn'\
+          \ 'imbalanced-learn' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef undersample_train(dataset_train: Input[Dataset], resampled_dataset_train:\
+          \ Output[Dataset]):\n    '''Apply undersampling to training set'''\n   \
+          \ import pandas as pd\n    import logging \n    import sys\n    from imblearn.under_sampling\
+          \ import RandomUnderSampler\n\n    logging.basicConfig(stream=sys.stdout,\
+          \ level=logging.INFO) \n\n    # get the train dataset from the previous\
+          \ component\n    train_data = pd.read_csv(dataset_train.path + \".csv\"\
+          , index_col=None)\n    X = train_data.drop([\"label\"], axis=1)\n    y =\
+          \ train_data['label']\n    # random sampling\n    rus = RandomUnderSampler(random_state=42)\n\
+          \    resampled_X,resampled_y = rus.fit_resample(X,y)\n    resampled_train_data\
+          \ = pd.concat([resampled_X, resampled_y], axis=\"columns\")\n    # create\
+          \ a file with the randomly undersampled data\n    resampled_train_data.to_csv(resampled_dataset_train.path\
+          \ + \".csv\" , index=False, encoding='utf-8-sig')\n\n"
         image: python:3.10.7-slim
     exec-upload-dataset-to-gcs:
       container:
@@ -358,6 +414,21 @@ root:
                 producerTask: clean-data
         taskInfo:
           name: train-test-split
+      undersample-train:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-undersample-train
+        dependentTasks:
+        - train-test-split
+        inputs:
+          artifacts:
+            dataset_train:
+              taskOutputArtifact:
+                outputArtifactKey: dataset_train
+                producerTask: train-test-split
+        taskInfo:
+          name: undersample-train
       upload-dataset-to-gcs:
         cachingOptions:
           enableCache: true
@@ -365,6 +436,7 @@ root:
           name: comp-upload-dataset-to-gcs
         dependentTasks:
         - train-test-split
+        - undersample-train
         inputs:
           artifacts:
             dataset_test:
@@ -373,8 +445,8 @@ root:
                 producerTask: train-test-split
             resampled_train_data:
               taskOutputArtifact:
-                outputArtifactKey: dataset_train
-                producerTask: train-test-split
+                outputArtifactKey: resampled_dataset_train
+                producerTask: undersample-train
           parameters:
             project_id:
               componentInputParameter: project_id
