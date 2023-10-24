@@ -1,13 +1,54 @@
-<html>
-<head>
-    <title>Potential Fraud Risk</title>
-</head>
-<body>
-
-{% if prediction_variable==true %}
-    <p>The assessment indicates a potential risk of fraud.</p>
-{% else %}
-    <p>The assessment suggests no discernible risk of fraud.</p>
-{% endif %}
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="en"><head>
+    <title>Fraud</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,100,300,700" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script defer="" referrerpolicy="origin" src="/cdn-cgi/zaraz/s.js?z=JTdCJTIyZXhlY3V0ZWQlMjIlM0ElNUIlNUQlMkMlMjJ0JTIyJTNBJTIyQ29udGFjdCUyMEZvcm0lMjAwMyUyMiUyQyUyMnglMjIlM0EwLjk0NDExNTkzNzQ1MzA4MDElMkMlMjJ3JTIyJTNBMTUxMiUyQyUyMmglMjIlM0E5ODIlMkMlMjJqJTIyJTNBODYwJTJDJTIyZSUyMiUzQTE1MTIlMkMlMjJsJTIyJTNBJTIyaHR0cHMlM0ElMkYlMkZwcmV2aWV3LmNvbG9ybGliLmNvbSUyRnRoZW1lJTJGYm9vdHN0cmFwJTJGY29udGFjdC1mb3JtLTAzJTJGJTIyJTJDJTIyciUyMiUzQSUyMiUyMiUyQyUyMmslMjIlM0EzMCUyQyUyMm4lMjIlM0ElMjJVVEYtOCUyMiUyQyUyMm8lMjIlM0EtMTIwJTJDJTIycSUyMiUzQSU1QiU1RCU3RA=="></script><script nonce="8edd5c26-7287-419c-ba8e-8ec75a881d18">(function(w,d){!function(du,dv,dw,dx){du[dw]=du[dw]||{};du[dw].executed=[];du.zaraz={deferred:[],listeners:[]};du.zaraz.q=[];du.zaraz._f=function(dy){return async function(){var dz=Array.prototype.slice.call(arguments);du.zaraz.q.push({m:dy,a:dz})}};for(const dA of["track","set","debug"])du.zaraz[dA]=du.zaraz._f(dA);du.zaraz.init=()=>{var dB=dv.getElementsByTagName(dx)[0],dC=dv.createElement(dx),dD=dv.getElementsByTagName("title")[0];dD&&(du[dw].t=dv.getElementsByTagName("title")[0].text);du[dw].x=Math.random();du[dw].w=du.screen.width;du[dw].h=du.screen.height;du[dw].j=du.innerHeight;du[dw].e=du.innerWidth;du[dw].l=du.location.href;du[dw].r=dv.referrer;du[dw].k=du.screen.colorDepth;du[dw].n=dv.characterSet;du[dw].o=(new Date).getTimezoneOffset();if(du.dataLayer)for(const dH of Object.entries(Object.entries(dataLayer).reduce(((dI,dJ)=>({...dI[1],...dJ[1]})),{})))zaraz.set(dH[0],dH[1],{scope:"page"});du[dw].q=[];for(;du.zaraz.q.length;){const dK=du.zaraz.q.shift();du[dw].q.push(dK)}dC.defer=!0;for(const dL of[localStorage,sessionStorage])Object.keys(dL||{}).filter((dN=>dN.startsWith("_zaraz_"))).forEach((dM=>{try{du[dw]["z_"+dM.slice(7)]=JSON.parse(dL.getItem(dM))}catch{du[dw]["z_"+dM.slice(7)]=dL.getItem(dM)}}));dC.referrerPolicy="origin";dC.src="/cdn-cgi/zaraz/s.js?z="+btoa(encodeURIComponent(JSON.stringify(du[dw])));dB.parentNode.insertBefore(dC,dB)};["complete","interactive"].includes(dv.readyState)?zaraz.init():du.addEventListener("DOMContentLoaded",zaraz.init)}(w,d,"zarazData","script");})(window,document);</script></head>
+    <body>
+    <section class="ftco-section">
+    <div class="container">
+    <div class="row justify-content-center">
+    <div class="col-md-6 text-center mb-5">
+    <h2 class="heading-section">Uncover the Red Flags: What's Your Risk of Fraud?</h2>
+    </div>
+    <div class="row justify-content-center">
+    <div class="col-md-12">
+    <div class="wrapper">
+    <div class="row mb-2">
+    </div>    
+    <div class="row no-gutters">
+    <div class="col-md-12">
+    <div class="contact-wrap w-100 p-md-5 p-4">
+    <h3 class="mb-4">The potential Fraud Risk is</h3>
+    {% if prediction_variable==true %}
+        <p>The assessment indicates a potential risk of fraud.</p>
+    {% else %}
+        <p>The assessment suggests no discernible risk of fraud.</p>
+    {% endif %}
+    </div>
+    </div>
+    </div>
+    </div>
+    <div class="row mb-5">
+    </div>  
+    <div class="dbox w-200 text-center">   
+    <div class="text">
+    <p><span>Made by:</span> Floor Halkes, Eva Haverkort, Marijn van Houwelingen, Edde Jansen and Kyra Jongman</p>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </section>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
+    <script src="js/main.js"></script>
+    <script defer="" src="https://static.cloudflareinsights.com/beacon.min.js/v84a3a4012de94ce1a686ba8c167c359c1696973893317" integrity="sha512-euoFGowhlaLqXsPWQ48qSkBSCFs3DPRyiwVu3FjR96cMPx+Fr+gpWRhIafcHwqwCqWS42RZhIudOvEI+Ckf6MA==" data-cf-beacon="{&quot;rayId&quot;:&quot;81b2f7e65a33b74c&quot;,&quot;version&quot;:&quot;2023.10.0&quot;,&quot;token&quot;:&quot;cd0b4b3a733644fc843ef0b185f98241&quot;}" crossorigin="anonymous"></script>
+    
+    
+    </body></html>
